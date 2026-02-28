@@ -1,0 +1,17 @@
+{
+    "name": "com.antigravity.mcp",
+    "version": "1.0.0",
+    "displayName": "Antigravity MCP Bridge",
+    "description": "WebSocket-based MCP bridge enabling Google Antigravity AI to control the Unity 6 Editor.",
+    "unity": "6000.0",
+    "keywords": [
+        "mcp",
+        "ai",
+        "antigravity",
+        "bridge"
+    ],
+    "author": {
+        "name": "Antigravity AI"
+    },
+    "license": "Proprietary"
+}

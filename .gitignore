@@ -1,0 +1,62 @@
+# ═══════════════════════════════════════════
+#  .NET / C# Build Outputs
+# ═══════════════════════════════════════════
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+*.user
+*.suo
+*.vs/
+.vscode/
+
+# NuGet
+*.nupkg
+packages/
+
+# ═══════════════════════════════════════════
+#  Unity
+# ═══════════════════════════════════════════
+# Unity Library folder (regenerated)
+Library/
+Temp/
+Logs/
+UserSettings/
+MemoryCaptures/
+Recordings/
+
+# Unity auto-generated
+*.csproj
+*.sln
+*.pidb
+*.booproj
+*.svd
+*.unityproj
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+Builds/
+Build/
+
+# ═══════════════════════════════════════════
+#  Project-specific ignores
+# ═══════════════════════════════════════════
+# Published Router binaries (user builds locally)
+UnityMcpRouter/bin/
+UnityMcpRouter/obj/
+
+# Audit logs
+mcp_audit.log

@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "unity-mcp-controller": {
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "c:/Users/ahmet/antigravity-repo/unity_mcp_project/UnityMcpRouter"
+      ],
+      "env": {
+        "UNITY_WS_PORT": "8090",
+        "UNITY_WS_SCHEME": "ws",
+        "UNITY_REQUEST_TIMEOUT": "45",
+        "UNITY_BUFFER_SIZE": "131072",
+        "LOG_LEVEL": "error"
+      }
+    }
+  }
+}
