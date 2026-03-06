@@ -105,9 +105,14 @@ namespace Antigravity.MCP.Editor
         //  Public API
         // ─────────────────────────────────────────
 
-        public static bool IsToolEnabled(string toolName)
+        public static void Initialize()
         {
             EnsureInitialized();
+        }
+
+        public static bool IsToolEnabled(string toolName)
+        {
+            if (!_initialized) return false;
             return _enabledTools.Contains(toolName);
         }
 
@@ -138,7 +143,7 @@ namespace Antigravity.MCP.Editor
 
         public static int EnabledToolCount
         {
-            get { EnsureInitialized(); return _enabledTools.Count; }
+            get { if (!_initialized) return 0; return _enabledTools.Count; }
         }
 
         public static int TotalToolCount

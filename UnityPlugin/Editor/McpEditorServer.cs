@@ -43,6 +43,13 @@ namespace Antigravity.MCP.Editor
         private static DateTime? _startTime;
         private static int _autoRestartCount;
 
+        // ─── Cached Thread-Unsafe State ──────────
+        private static string _unityVersionCached = "Unknown";
+        private static string _productNameCached = "Unknown";
+        private static string _apiKeyCached = "";
+        private static volatile bool _isCompiling = false;
+        private static volatile bool _isReloading = false;
+
         // ─── Config ──────────────────────────────
         private const int MaxMessageSize = 2 * 1024 * 1024; // 2 MB
         private const int AuthTimeoutSeconds = 5;
@@ -56,15 +63,28 @@ namespace Antigravity.MCP.Editor
 
         static McpEditorServer()
         {
+            EditorApplication.update += OnEditorUpdate;
             Port = EditorPrefs.GetInt(PORT_PREF, 8090);
             Start();
             EditorApplication.quitting += Stop;
             AssemblyReloadEvents.beforeAssemblyReload += OnBeforeReload;
-            AssemblyReloadEvents.afterAssemblyReload += Start;
+            AssemblyReloadEvents.afterAssemblyReload += OnAfterReload;
+        }
+
+        private static void OnEditorUpdate()
+        {
+            _isCompiling = EditorApplication.isCompiling;
+        }
+
+        private static void OnAfterReload()
+        {
+            _isReloading = false;
+            Start();
         }
 
         private static void OnBeforeReload()
         {
+            _isReloading = true;
             // Notify connected clients that Unity is reloading
             NotifyClients("{\"type\":\"reloading\"}");
             Stop();
@@ -76,6 +96,12 @@ namespace Antigravity.MCP.Editor
 
             try
             {
+                // Cache thread-unsafe fields on main thread
+                _unityVersionCached = Application.unityVersion;
+                _productNameCached = Application.productName;
+                _apiKeyCached = EditorPrefs.GetString("MCP_API_KEY", "");
+                McpToolRegistry.Initialize();
+
                 Port = EditorPrefs.GetInt(PORT_PREF, 8090);
                 _cts = new CancellationTokenSource();
                 _httpListener = new HttpListener();
@@ -211,13 +237,23 @@ namespace Antigravity.MCP.Editor
                     {
                         if (context.Request.Url.AbsolutePath == "/health")
                         {
+                            if (_isCompiling || _isReloading)
+                            {
+                                var errorResp = Encoding.UTF8.GetBytes("{\"status\":\"unavailable\",\"reason\":\"compiling_or_reloading\"}");
+                                context.Response.ContentType = "application/json";
+                                context.Response.StatusCode = 503;
+                                context.Response.OutputStream.Write(errorResp, 0, errorResp.Length);
+                                context.Response.Close();
+                                continue;
+                            }
+
                             var uptime = IsRunning && _startTime.HasValue
                                 ? (DateTime.Now - _startTime.Value).ToString(@"hh\:mm\:ss") : "00:00:00";
                             var health = Encoding.UTF8.GetBytes(
                                 $"{{\"status\":\"ok\"," +
                                 $"\"version\":\"2.0.0\"," +
-                                $"\"unityVersion\":\"{Application.unityVersion}\"," +
-                                $"\"projectName\":\"{JsonHelper.Escape(Application.productName)}\"," +
+                                $"\"unityVersion\":\"{_unityVersionCached}\"," +
+                                $"\"projectName\":\"{JsonHelper.Escape(_productNameCached)}\"," +
                                 $"\"port\":{Port}," +
                                 $"\"clients\":{ConnectedClientCount}," +
                                 $"\"tools\":{{\"enabled\":{McpToolRegistry.EnabledToolCount},\"total\":{McpToolRegistry.TotalToolCount}}}," +
@@ -296,8 +332,18 @@ namespace Antigravity.MCP.Editor
 
             try
             {
+                if (_isCompiling || _isReloading)
+                {
+                    var reject = Encoding.UTF8.GetBytes("{\"error\":\"Unity is compiling or reloading. Try again later.\"}");
+                    await socket.SendAsync(new ArraySegment<byte>(reject),
+                        WebSocketMessageType.Text, true, CancellationToken.None);
+                    await socket.CloseAsync(WebSocketCloseStatus.TryAgainLater,
+                        "Compiling", CancellationToken.None);
+                    return;
+                }
+
                 // ─── Secure API Key Authentication ───
-                var apiKey = EditorPrefs.GetString("MCP_API_KEY", "");
+                var apiKey = _apiKeyCached;
                 if (!string.IsNullOrEmpty(apiKey))
                 {
                     using var authTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(AuthTimeoutSeconds));
@@ -403,7 +449,14 @@ namespace Antigravity.MCP.Editor
                     string response;
                     try
                     {
-                        response = await CommandDispatcher.DispatchAsync(json);
+                        if (_isCompiling || _isReloading)
+                        {
+                            response = CommandDispatcher.CreateErrorResponse("0", "Unity is compiling or reloading. Command rejected.");
+                        }
+                        else
+                        {
+                            response = await CommandDispatcher.DispatchAsync(json);
+                        }
                     }
                     catch (Exception ex)
                     {
