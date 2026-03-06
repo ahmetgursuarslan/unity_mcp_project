@@ -251,7 +251,7 @@ namespace Antigravity.MCP.Editor
                                 ? (DateTime.Now - _startTime.Value).ToString(@"hh\:mm\:ss") : "00:00:00";
                             var health = Encoding.UTF8.GetBytes(
                                 $"{{\"status\":\"ok\"," +
-                                $"\"version\":\"2.0.0\"," +
+                                $"\"version\":\"2.0.1\"," +
                                 $"\"unityVersion\":\"{_unityVersionCached}\"," +
                                 $"\"projectName\":\"{JsonHelper.Escape(_productNameCached)}\"," +
                                 $"\"port\":{Port}," +
