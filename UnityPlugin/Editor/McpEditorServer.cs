@@ -117,7 +117,7 @@ namespace Antigravity.MCP.Editor
                 catch (Exception ex) when (useHttps)
                 {
                     // HTTPS failed (cert not bound) — fallback to HTTP
-                    Debug.LogWarning($"[MCP] HTTPS failed ({ex.Message}), falling back to HTTP.");
+                    Debug.LogWarning($"[Nefertiti] HTTPS failed ({ex.Message}), falling back to HTTP.");
                     _httpListener.Close();
                     _httpListener = new HttpListener();
                     _httpListener.Prefixes.Add($"http://localhost:{Port}/");
@@ -130,7 +130,7 @@ namespace Antigravity.MCP.Editor
                 _startTime = DateTime.Now;
                 _autoRestartCount = 0;
                 LastError = null;
-                Debug.Log($"[MCP] Server listening on port {Port} ({scheme})");
+                Debug.Log($"[Nefertiti] Server listening on port {Port} ({scheme})");
                 OnStateChanged?.Invoke();
 
                 Task.Run(() => AcceptConnectionsAsync(_cts.Token));
@@ -139,7 +139,7 @@ namespace Antigravity.MCP.Editor
             {
                 LastError = ex.Message;
                 IsRunning = false;
-                Debug.LogError($"[MCP] Failed to start server: {ex.Message}");
+                Debug.LogError($"[Nefertiti] Failed to start server: {ex.Message}");
                 OnStateChanged?.Invoke();
             }
         }
@@ -174,12 +174,12 @@ namespace Antigravity.MCP.Editor
                 _httpListener = null;
 
                 IsRunning = false;
-                Debug.Log("[MCP] Server stopped.");
+                Debug.Log("[Nefertiti] Server stopped.");
                 OnStateChanged?.Invoke();
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[MCP] Error during shutdown: {ex.Message}");
+                Debug.LogWarning($"[Nefertiti] Error during shutdown: {ex.Message}");
             }
         }
 
@@ -274,7 +274,7 @@ namespace Antigravity.MCP.Editor
                     }
 
                     var wsContext = await context.AcceptWebSocketAsync(null);
-                    Debug.Log("[MCP] Client connected.");
+                    Debug.Log("[Nefertiti] Client connected.");
 
                     lock (_clientLock) _activeClients.Add(wsContext.WebSocket);
                     OnStateChanged?.Invoke();
@@ -287,13 +287,13 @@ namespace Antigravity.MCP.Editor
                 catch (Exception ex) when (!ct.IsCancellationRequested)
                 {
                     LastError = ex.Message;
-                    Debug.LogWarning($"[MCP] Connection error: {ex.Message}");
+                    Debug.LogWarning($"[Nefertiti] Connection error: {ex.Message}");
 
                     // Auto-restart on unexpected listener death
                     if (_autoRestartCount < MaxAutoRestarts)
                     {
                         _autoRestartCount++;
-                        Debug.LogWarning($"[MCP] Auto-restart attempt {_autoRestartCount}/{MaxAutoRestarts}...");
+                        Debug.LogWarning($"[Nefertiti] Auto-restart attempt {_autoRestartCount}/{MaxAutoRestarts}...");
                         await Task.Delay(1000 * _autoRestartCount, ct);
 
                         try
@@ -308,17 +308,17 @@ namespace Antigravity.MCP.Editor
                             _httpListener = new HttpListener();
                             _httpListener.Prefixes.Add($"http://localhost:{Port}/");
                             _httpListener.Start();
-                            Debug.Log("[MCP] Server auto-restarted successfully.");
+                            Debug.Log("[Nefertiti] Server auto-restarted successfully.");
                         }
                         catch (Exception restartEx)
                         {
-                            Debug.LogError($"[MCP] Auto-restart failed: {restartEx.Message}");
+                            Debug.LogError($"[Nefertiti] Auto-restart failed: {restartEx.Message}");
                             break;
                         }
                     }
                     else
                     {
-                        Debug.LogError("[MCP] Max auto-restarts reached. Server stopped.");
+                        Debug.LogError("[Nefertiti] Max auto-restarts reached. Server stopped.");
                         break;
                     }
                 }
@@ -379,13 +379,13 @@ namespace Antigravity.MCP.Editor
                                 WebSocketMessageType.Text, true, ct);
                             await socket.CloseAsync(WebSocketCloseStatus.PolicyViolation,
                                 "Auth failed", CancellationToken.None);
-                            Debug.LogWarning("[MCP] Client auth failed — connection rejected.");
+                            Debug.LogWarning("[Nefertiti] Client auth failed — connection rejected.");
                             return;
                         }
                     }
                     catch (OperationCanceledException)
                     {
-                        Debug.LogWarning("[MCP] Client auth timed out — connection rejected.");
+                        Debug.LogWarning("[Nefertiti] Client auth timed out — connection rejected.");
                         try
                         {
                             await socket.CloseAsync(WebSocketCloseStatus.PolicyViolation,
@@ -411,7 +411,7 @@ namespace Antigravity.MCP.Editor
                         result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), ct);
                         if (result.MessageType == WebSocketMessageType.Close)
                         {
-                            Debug.Log("[MCP] Client disconnected.");
+                            Debug.Log("[Nefertiti] Client disconnected.");
                             return;
                         }
                         messageBuffer.Write(buffer, 0, result.Count);
@@ -419,7 +419,7 @@ namespace Antigravity.MCP.Editor
                         // Guard against oversized messages
                         if (messageBuffer.Length > MaxMessageSize)
                         {
-                            Debug.LogWarning($"[MCP] Message exceeded {MaxMessageSize / (1024 * 1024)}MB limit — dropping.");
+                            Debug.LogWarning($"[Nefertiti] Message exceeded {MaxMessageSize / (1024 * 1024)}MB limit — dropping.");
                             messageBuffer.SetLength(0);
                             var errBytes = Encoding.UTF8.GetBytes(
                                 "{\"id\":\"0\",\"error\":\"Message too large\",\"isError\":true}");

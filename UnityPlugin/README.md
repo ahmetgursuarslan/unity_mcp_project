@@ -1,11 +1,11 @@
-# Unity MCP — Model Context Protocol for Unity Editor
+# Nefertiti — Model Context Protocol for Unity Editor
 
 AI-powered Unity Editor control via the Model Context Protocol (MCP). Connect any MCP-compatible AI tool (Antigravity, VS Code Copilot, Cursor, Claude Code, Gemini CLI, Windsurf) to Unity for full editor automation.
 
 ## Features
 
 - **~145 tools** across 31 categories covering all Unity subsystems
-- **MCP Control Panel** — Unity EditorWindow for server control, tool management, IDE config export
+- **Nefertiti** — Unity EditorWindow for server control, tool management, IDE config export
 - **Multi-IDE support** — one-click config generation for 6 IDEs
 - **Security** — API key auth, rate limiting, read-only mode, audit logging
 - **Multi-client** — multiple IDEs can connect simultaneously
@@ -23,13 +23,13 @@ dotnet build
 
 ### 3. Configure Your IDE
 
-**Option A (Automatic):** In Unity, go to **Window > Antigravity > MCP Control Panel > IDE Setup** and click "Export Config" for your IDE.
+**Option A (Automatic):** In Unity, go to **Window > Antigravity > Nefertiti > IDE Setup** and click "Export Config" for your IDE.
 
 **Option B (Manual):** Add to your IDE's MCP config:
 ```json
 {
   "mcpServers": {
-    "unity-mcp-controller": {
+    "nefertiti-controller": {
       "command": "dotnet",
       "args": ["run", "--project", "/path/to/UnityMcpRouter"],
       "env": {
@@ -43,7 +43,7 @@ dotnet build
 ```
 
 ### 4. Start Using
-Open Unity, the MCP server starts automatically. Your AI tool can now control the editor.
+Open Unity, the Nefertiti server starts automatically. Your AI tool can now control the editor.
 
 ## Architecture
 
@@ -87,9 +87,9 @@ AI IDE → [stdio JSON-RPC] → .NET Router → [WebSocket :8090] → Unity Plug
 | Build | 3 | Build player, settings, scene list |
 | Package Manager | 4 | List, add, remove, search UPM packages |
 
-## MCP Control Panel
+## Nefertiti Control Panel
 
-Access via **Window > Antigravity > MCP Control Panel**:
+Access via **Window > Antigravity > Nefertiti**:
 
 - **Dashboard** — Server status, port, connected clients, messages
 - **Tools** — Enable/disable categories, presets (Full, 3D Game, 2D Game, Core, Multiplayer)

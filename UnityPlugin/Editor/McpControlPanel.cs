@@ -6,9 +6,9 @@ using UnityEngine;
 namespace Antigravity.MCP.Editor
 {
     /// <summary>
-    /// MCP Control Panel — Unity EditorWindow for managing the MCP server,
+    /// Nefertiti — Unity EditorWindow for managing the server,
     /// tool categories, IDE integration, and security settings.
-    /// Window > Antigravity > MCP Control Panel
+    /// Window > Antigravity > Nefertiti
     /// </summary>
     public class McpControlPanel : EditorWindow
     {
@@ -25,10 +25,10 @@ namespace Antigravity.MCP.Editor
         private GUIStyle _boxStyle;
         private bool _stylesInitialized;
 
-        [MenuItem("Window/Antigravity/MCP Control Panel")]
+        [MenuItem("Window/Antigravity/Nefertiti")]
         public static void ShowWindow()
         {
-            var window = GetWindow<McpControlPanel>("MCP Control Panel");
+            var window = GetWindow<McpControlPanel>("Nefertiti");
             window.minSize = new Vector2(500, 400);
             window.Show();
         }
@@ -60,7 +60,7 @@ namespace Antigravity.MCP.Editor
             // Title bar
             EditorGUILayout.Space(5);
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("⚡ MCP Control Panel", _headerStyle);
+            GUILayout.Label("⚡ Nefertiti", _headerStyle);
             GUILayout.FlexibleSpace();
 
             // Quick status indicator

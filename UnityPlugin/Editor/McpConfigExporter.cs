@@ -32,7 +32,7 @@ namespace Antigravity.MCP.Editor
             {
                 return $@"{{
   ""mcpServers"": {{
-    ""unity-mcp-controller"": {{
+    ""nefertiti-controller"": {{
       ""command"": ""{RouterExePath}"",
       ""args"": [],
       ""env"": {{
@@ -47,7 +47,7 @@ namespace Antigravity.MCP.Editor
 
             return $@"{{
   ""mcpServers"": {{
-    ""unity-mcp-controller"": {{
+    ""nefertiti-controller"": {{
       ""command"": ""dotnet"",
       ""args"": [""run"", ""--project"", ""{RouterProjectPath}""],
       ""env"": {{
@@ -69,7 +69,7 @@ namespace Antigravity.MCP.Editor
             Directory.CreateDirectory(dir);
             var path = Path.Combine(dir, "settings.json");
             File.WriteAllText(path, BuildConfig(true));
-            Debug.Log($"[MCP] Antigravity config exported to: {path}");
+            Debug.Log($"[Nefertiti] Antigravity config exported to: {path}");
             return path;
         }
 
